@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}My Videos - EON DeepLearn™{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-collection-play me-2"></i>My Videos</h1>
+        <a href="/create" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>Create New Video
+        </a>
+    </div>
+
+    <!-- Filter Tabs -->
+    <ul class="nav nav-tabs mb-4" id="videoTabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-filter="all" href="#">All</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-filter="completed" href="#">Completed</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-filter="generating" href="#">In Progress</a>
+        </li>
+    </ul>
+
+    <!-- Videos Grid -->
+    <div id="videos-container" class="row">
+        <!-- Videos will be loaded here -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="text-center py-5" style="display: none;">
+        <i class="bi bi-inbox display-1 text-muted mb-3"></i>
+        <h3 class="text-muted">No videos found</h3>
+        <p class="text-muted">Create your first educational video to get started.</p>
+        <a href="/create" class="btn btn-primary btn-lg">
+            <i class="bi bi-plus-circle me-2"></i>Create Video
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let allJobs = [];
+let currentFilter = 'all';
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadVideos();
+
+    // Tab filtering
+    document.querySelectorAll('#videoTabs .nav-link').forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('#videoTabs .nav-link').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            currentFilter = this.dataset.filter;
+            renderVideos();
+        });
+    });
+});
+
+async function loadVideos() {
+    try {
+        const response = await fetch('/api/jobs');
+        const data = await response.json();
+
+        if (data.success) {
+            allJobs = data.jobs;
+            renderVideos();
+        }
+    } catch (error) {
+        console.error('Error loading videos:', error);
+    }
+}
+
+function renderVideos() {
+    const container = document.getElementById('videos-container');
+    const emptyState = document.getElementById('empty-state');
+
+    let filteredJobs = allJobs;
+    if (currentFilter !== 'all') {
+        filteredJobs = allJobs.filter(j => j.status === currentFilter);
+    }
+
+    if (filteredJobs.length === 0) {
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+    }
+
+    emptyState.style.display = 'none';
+    container.innerHTML = filteredJobs.map(job => createVideoCard(job)).join('');
+}
+
+function createVideoCard(job) {
+    const statusConfig = {
+        'completed': { badge: 'bg-success', icon: 'bi-check-circle', text: 'Completed' },
+        'generating': { badge: 'bg-warning', icon: 'bi-arrow-repeat', text: 'In Progress' },
+        'failed': { badge: 'bg-danger', icon: 'bi-exclamation-circle', text: 'Failed' },
+        'starting': { badge: 'bg-info', icon: 'bi-hourglass', text: 'Starting' }
+    };
+
+    const status = statusConfig[job.status] || statusConfig['starting'];
+
+    const voiceLabels = {
+        'british_documentary': 'British Documentary',
+        'american_professional': 'American Professional',
+        'warm_teacher': 'Warm Teacher'
+    };
+
+    const styleLabels = {
+        'educational': 'Educational',
+        'energetic': 'Energetic',
+        'calm': 'Calm & Meditative',
+        'documentary': 'Documentary'
+    };
+
+    return `
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 shadow-sm video-card-item">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <span class="badge ${status.badge}">
+                        <i class="bi ${status.icon} me-1"></i>${status.text}
+                    </span>
+                    <small class="text-muted">${formatDate(job.created_at)}</small>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">${job.title || 'Untitled Video'}</h5>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">
+                            <i class="bi bi-clock me-1"></i>${job.duration_hours || 1} hour(s)
+                        </small>
+                        <small class="text-muted d-block">
+                            <i class="bi bi-mic me-1"></i>${voiceLabels[job.voice_style] || job.voice_style}
+                        </small>
+                        <small class="text-muted d-block">
+                            <i class="bi bi-palette me-1"></i>${styleLabels[job.content_style] || job.content_style}
+                        </small>
+                    </div>
+
+                    ${job.status === 'generating' ? `
+                        <div class="progress mb-3" style="height: 6px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                 style="width: ${job.progress}%"></div>
+                        </div>
+                        <small class="text-muted">${job.current_stage}</small>
+                    ` : ''}
+                </div>
+                <div class="card-footer bg-white border-top-0">
+                    ${job.status === 'completed' ? `
+                        <a href="/api/download/${job.id}" class="btn btn-primary btn-sm w-100">
+                            <i class="bi bi-download me-1"></i>Download
+                        </a>
+                    ` : job.status === 'generating' ? `
+                        <a href="/progress/${job.id}" class="btn btn-outline-primary btn-sm w-100">
+                            <i class="bi bi-eye me-1"></i>View Progress
+                        </a>
+                    ` : `
+                        <button class="btn btn-secondary btn-sm w-100" disabled>
+                            ${status.text}
+                        </button>
+                    `}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function formatDate(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Generating Video - EON DeepLearn™{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-5">
+                <h1 class="display-5 mb-3" id="progress-title">Generating Your Video</h1>
+                <p class="lead text-muted" id="progress-subtitle">Please wait while we create your educational content...</p>
+            </div>
+
+            <!-- Overall Progress -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-bold" id="current-stage">Initializing...</span>
+                        <span class="text-muted" id="progress-percent">0%</span>
+                    </div>
+                    <div class="progress" style="height: 24px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" id="main-progress"
+                             role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stage Details -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-list-task me-2"></i>Generation Stages</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item stage-item" data-stage="outline">
+                            <div class="d-flex align-items-center">
+                                <div class="stage-icon me-3">
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <strong>Course Outline</strong>
+                                    <small class="d-block text-muted">Structure your content</small>
+                                </div>
+                                <span class="badge bg-success">Complete</span>
+                            </div>
+                        </div>
+
+                        <div class="list-group-item stage-item" data-stage="script">
+                            <div class="d-flex align-items-center">
+                                <div class="stage-icon me-3">
+                                    <i class="bi bi-circle text-muted" id="icon-script"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <strong>Script Generation</strong>
+                                    <small class="d-block text-muted">Writing educational content</small>
+                                </div>
+                                <div class="stage-progress" id="progress-script">
+                                    <span class="badge bg-secondary">Pending</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-group-item stage-item" data-stage="voice">
+                            <div class="d-flex align-items-center">
+                                <div class="stage-icon me-3">
+                                    <i class="bi bi-circle text-muted" id="icon-voice"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <strong>Voice Synthesis</strong>
+                                    <small class="d-block text-muted">Creating narration audio</small>
+                                </div>
+                                <div class="stage-progress" id="progress-voice">
+                                    <span class="badge bg-secondary">Pending</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-group-item stage-item" data-stage="visuals">
+                            <div class="d-flex align-items-center">
+                                <div class="stage-icon me-3">
+                                    <i class="bi bi-circle text-muted" id="icon-visuals"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <strong>Visual Generation</strong>
+                                    <small class="d-block text-muted">Creating images and graphics</small>
+                                </div>
+                                <div class="stage-progress" id="progress-visuals">
+                                    <span class="badge bg-secondary">Pending</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="list-group-item stage-item" data-stage="assembly">
+                            <div class="d-flex align-items-center">
+                                <div class="stage-icon me-3">
+                                    <i class="bi bi-circle text-muted" id="icon-assembly"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <strong>Video Assembly</strong>
+                                    <small class="d-block text-muted">Combining audio and visuals</small>
+                                </div>
+                                <div class="stage-progress" id="progress-assembly">
+                                    <span class="badge bg-secondary">Pending</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completion Section (hidden initially) -->
+            <div id="completion-section" style="display: none;" class="mt-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-check-circle display-1 mb-3"></i>
+                        <h2>Video Complete!</h2>
+                        <p class="mb-4">Your educational video has been generated successfully.</p>
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="#" id="download-btn" class="btn btn-light btn-lg">
+                                <i class="bi bi-download me-2"></i>Download Video
+                            </a>
+                            <a href="/create" class="btn btn-outline-light btn-lg">
+                                <i class="bi bi-plus-circle me-2"></i>Create Another
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Section (hidden initially) -->
+            <div id="error-section" style="display: none;" class="mt-4">
+                <div class="card bg-danger text-white">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-exclamation-triangle display-1 mb-3"></i>
+                        <h2>Generation Failed</h2>
+                        <p class="mb-4" id="error-message">An error occurred during video generation.</p>
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="/create" class="btn btn-light btn-lg">
+                                <i class="bi bi-arrow-repeat me-2"></i>Try Again
+                            </a>
+                            <a href="/" class="btn btn-outline-light btn-lg">
+                                <i class="bi bi-house me-2"></i>Go Home
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="text-center mt-4" id="action-buttons">
+                <a href="/" class="btn btn-outline-secondary">
+                    <i class="bi bi-house me-2"></i>Back to Dashboard
+                </a>
+                <small class="d-block mt-2 text-muted">Generation will continue in the background</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const jobId = "{{ job_id }}";
+let pollInterval;
+
+document.addEventListener('DOMContentLoaded', function() {
+    pollProgress();
+    pollInterval = setInterval(pollProgress, 2000);
+});
+
+async function pollProgress() {
+    try {
+        const response = await fetch(`/api/job/${jobId}`);
+        const data = await response.json();
+
+        if (data.success) {
+            updateUI(data.job);
+
+            if (data.job.status === 'completed' || data.job.status === 'failed') {
+                clearInterval(pollInterval);
+            }
+        }
+    } catch (error) {
+        console.error('Error polling progress:', error);
+    }
+}
+
+function updateUI(job) {
+    // Update main progress
+    document.getElementById('main-progress').style.width = job.progress + '%';
+    document.getElementById('progress-percent').textContent = job.progress + '%';
+    document.getElementById('current-stage').textContent = job.current_stage;
+
+    // Update stage indicators
+    if (job.stages) {
+        updateStage('script', job.stages.script);
+        updateStage('voice', job.stages.voice);
+        updateStage('visuals', job.stages.visuals);
+        updateStage('assembly', job.stages.assembly);
+    }
+
+    // Handle completion
+    if (job.status === 'completed') {
+        document.getElementById('progress-title').textContent = '🎉 Video Complete!';
+        document.getElementById('progress-subtitle').textContent = 'Your educational video is ready to download.';
+        document.getElementById('completion-section').style.display = 'block';
+        document.getElementById('action-buttons').style.display = 'none';
+        document.getElementById('download-btn').href = `/api/download/${jobId}`;
+
+        // Remove animation from progress bar
+        document.getElementById('main-progress').classList.remove('progress-bar-animated');
+        document.getElementById('main-progress').classList.add('bg-success');
+    }
+
+    // Handle error
+    if (job.status === 'failed') {
+        document.getElementById('progress-title').textContent = 'Generation Failed';
+        document.getElementById('progress-subtitle').textContent = '';
+        document.getElementById('error-section').style.display = 'block';
+        document.getElementById('error-message').textContent = job.error || 'An unexpected error occurred.';
+        document.getElementById('action-buttons').style.display = 'none';
+
+        document.getElementById('main-progress').classList.remove('progress-bar-animated');
+        document.getElementById('main-progress').classList.add('bg-danger');
+    }
+}
+
+function updateStage(stageName, stageData) {
+    if (!stageData) return;
+
+    const icon = document.getElementById(`icon-${stageName}`);
+    const progress = document.getElementById(`progress-${stageName}`);
+
+    if (stageData.status === 'completed') {
+        icon.className = 'bi bi-check-circle-fill text-success';
+        progress.innerHTML = '<span class="badge bg-success">Complete</span>';
+    } else if (stageData.status === 'in_progress') {
+        icon.className = 'bi bi-arrow-repeat text-primary spin';
+        progress.innerHTML = `
+            <div class="d-flex align-items-center">
+                <div class="progress me-2" style="width: 60px; height: 6px;">
+                    <div class="progress-bar" style="width: ${stageData.progress}%"></div>
+                </div>
+                <span class="badge bg-primary">${stageData.progress}%</span>
+            </div>
+        `;
+    } else {
+        icon.className = 'bi bi-circle text-muted';
+        progress.innerHTML = '<span class="badge bg-secondary">Pending</span>';
+    }
+}
+</script>
+<style>
+.spin {
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}

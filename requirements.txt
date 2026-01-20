@@ -1,0 +1,26 @@
+# EON DeepLearn™ - Requirements per Technical Spec v1.0
+
+# Web Framework
+flask>=3.0.0
+flask-cors>=4.0.0
+gunicorn>=21.0.0
+
+# Script Generation (Claude API)
+anthropic>=0.18.0
+
+# Voice Synthesis Options (in order of preference):
+# 1. ElevenLabs (premium - requires ELEVENLABS_API_KEY)
+# 2. Coqui XTTS v2 (open-source per spec - requires GPU)
+# TTS>=0.22.0  # Uncomment if running on GPU server
+# 3. gTTS (free fallback)
+gTTS>=2.5.0
+
+# Image Generation
+Pillow>=10.0.0
+requests>=2.31.0
+
+# Audio Processing
+pydub>=0.25.0
+
+# Configuration
+python-dotenv>=1.0.0

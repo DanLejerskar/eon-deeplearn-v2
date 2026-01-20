@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+
+{% block title %}Create Video - EON DeepLearn™{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Progress Indicator -->
+            <div class="wizard-progress mb-5">
+                <div class="d-flex justify-content-between">
+                    <div class="wizard-step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Content</div>
+                    </div>
+                    <div class="wizard-step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Outline</div>
+                    </div>
+                    <div class="wizard-step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Voice & Style</div>
+                    </div>
+                    <div class="wizard-step" data-step="4">
+                        <div class="step-number">4</div>
+                        <div class="step-label">Visuals</div>
+                    </div>
+                    <div class="wizard-step" data-step="5">
+                        <div class="step-number">5</div>
+                        <div class="step-label">Generate</div>
+                    </div>
+                </div>
+                <div class="progress mt-3" style="height: 4px;">
+                    <div class="progress-bar" id="wizard-progress-bar" style="width: 20%"></div>
+                </div>
+            </div>
+
+            <!-- Step 1: Content Source -->
+            <div class="wizard-panel" id="step-1">
+                <h2 class="mb-4"><i class="bi bi-file-earmark-text me-2"></i>Where's your content coming from?</h2>
+
+                <div class="content-options">
+                    <div class="content-option card mb-3" data-source="title">
+                        <div class="card-body d-flex align-items-center">
+                            <i class="bi bi-lightbulb display-5 text-warning me-4"></i>
+                            <div>
+                                <h5 class="mb-1">Just a Title</h5>
+                                <p class="text-muted mb-0">Enter a topic and AI will create the entire course structure</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-option card mb-3" data-source="content">
+                        <div class="card-body d-flex align-items-center">
+                            <i class="bi bi-file-earmark-text display-5 text-primary me-4"></i>
+                            <div>
+                                <h5 class="mb-1">I Have Content</h5>
+                                <p class="text-muted mb-0">Paste text or upload a document with your course material</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-option card mb-3 disabled" data-source="virtual_campus">
+                        <div class="card-body d-flex align-items-center">
+                            <i class="bi bi-cloud-download display-5 text-success me-4"></i>
+                            <div>
+                                <h5 class="mb-1">Virtual Campus <span class="badge bg-secondary">Coming Soon</span></h5>
+                                <p class="text-muted mb-0">Import from EON Virtual Campus library (9,000+ topics)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Title Input (shown when "Just a Title" selected) -->
+                <div id="title-input" class="mt-4" style="display: none;">
+                    <label class="form-label fw-bold">What's your video about?</label>
+                    <input type="text" class="form-control form-control-lg" id="video-title"
+                           placeholder="e.g., Introduction to Machine Learning, Career Transition to Data Analytics">
+                    <div class="form-text">Enter a descriptive title for your educational video</div>
+                </div>
+
+                <!-- Content Input (shown when "I Have Content" selected) -->
+                <div id="content-input" class="mt-4" style="display: none;">
+                    <label class="form-label fw-bold">Video Title</label>
+                    <input type="text" class="form-control mb-3" id="video-title-with-content"
+                           placeholder="Enter a title for your video">
+
+                    <label class="form-label fw-bold">Your Content</label>
+                    <textarea class="form-control" id="video-content" rows="8"
+                              placeholder="Paste your course content, notes, or script here..."></textarea>
+                    <div class="form-text">The AI will structure this into a proper video course</div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <button class="btn btn-primary btn-lg" id="btn-step-1-next" disabled>
+                        Generate Outline <i class="bi bi-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Review Outline -->
+            <div class="wizard-panel" id="step-2" style="display: none;">
+                <h2 class="mb-4"><i class="bi bi-list-check me-2"></i>Review Your Course Outline</h2>
+
+                <div id="outline-loading" class="text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status"></div>
+                    <p class="text-muted">Generating outline...</p>
+                </div>
+
+                <div id="outline-container" style="display: none;">
+                    <div class="alert alert-info mb-4">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Review the proposed structure. You can edit module titles or reorder them.
+                    </div>
+
+                    <div id="outline-modules">
+                        <!-- Modules will be inserted here -->
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button class="btn btn-outline-secondary" onclick="goToStep(1)">
+                            <i class="bi bi-arrow-left me-2"></i>Back
+                        </button>
+                        <button class="btn btn-primary btn-lg" onclick="goToStep(3)">
+                            Continue <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Voice & Style -->
+            <div class="wizard-panel" id="step-3" style="display: none;">
+                <h2 class="mb-4"><i class="bi bi-mic me-2"></i>Choose Voice & Style</h2>
+
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-bold">Narrator Voice</label>
+                        <div class="voice-options">
+                            <div class="voice-option card mb-2 active" data-voice="british_documentary">
+                                <div class="card-body py-2 d-flex align-items-center">
+                                    <i class="bi bi-mic-fill text-primary me-3"></i>
+                                    <div>
+                                        <strong>British Documentary</strong>
+                                        <small class="d-block text-muted">Calm, authoritative (Attenborough-style)</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="voice-option card mb-2" data-voice="american_professional">
+                                <div class="card-body py-2 d-flex align-items-center">
+                                    <i class="bi bi-mic-fill text-primary me-3"></i>
+                                    <div>
+                                        <strong>American Professional</strong>
+                                        <small class="d-block text-muted">Clear, professional tone</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="voice-option card mb-2" data-voice="warm_teacher">
+                                <div class="card-body py-2 d-flex align-items-center">
+                                    <i class="bi bi-mic-fill text-primary me-3"></i>
+                                    <div>
+                                        <strong>Warm Teacher</strong>
+                                        <small class="d-block text-muted">Friendly, encouraging</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-bold">Content Style</label>
+                        <div class="style-options">
+                            <div class="style-option card mb-2 active" data-style="educational">
+                                <div class="card-body py-2">
+                                    <strong><i class="bi bi-book me-2"></i>Educational</strong>
+                                    <small class="d-block text-muted">Clear, informative, thorough</small>
+                                </div>
+                            </div>
+                            <div class="style-option card mb-2" data-style="energetic">
+                                <div class="card-body py-2">
+                                    <strong><i class="bi bi-lightning me-2"></i>Energetic</strong>
+                                    <small class="d-block text-muted">Dynamic, exciting, engaging</small>
+                                </div>
+                            </div>
+                            <div class="style-option card mb-2" data-style="calm">
+                                <div class="card-body py-2">
+                                    <strong><i class="bi bi-moon me-2"></i>Calm & Meditative</strong>
+                                    <small class="d-block text-muted">Soothing, relaxed (bedtime learning)</small>
+                                </div>
+                            </div>
+                            <div class="style-option card mb-2" data-style="documentary">
+                                <div class="card-body py-2">
+                                    <strong><i class="bi bi-camera-video me-2"></i>Documentary</strong>
+                                    <small class="d-block text-muted">Narrative storytelling</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Video Duration</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="duration" id="duration-1" value="1" checked>
+                        <label class="btn btn-outline-primary" for="duration-1">1 Hour</label>
+
+                        <input type="radio" class="btn-check" name="duration" id="duration-2" value="2">
+                        <label class="btn btn-outline-primary" for="duration-2">2 Hours</label>
+
+                        <input type="radio" class="btn-check" name="duration" id="duration-3" value="3">
+                        <label class="btn btn-outline-primary" for="duration-3">3 Hours</label>
+
+                        <input type="radio" class="btn-check" name="duration" id="duration-custom" value="custom">
+                        <label class="btn btn-outline-primary" for="duration-custom">Custom</label>
+                    </div>
+                    <div id="custom-duration" class="mt-2" style="display: none;">
+                        <input type="number" class="form-control" id="custom-duration-value" min="0.5" max="6" step="0.5" value="1.5" placeholder="Hours">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button class="btn btn-outline-secondary" onclick="goToStep(2)">
+                        <i class="bi bi-arrow-left me-2"></i>Back
+                    </button>
+                    <button class="btn btn-primary btn-lg" onclick="goToStep(4)">
+                        Continue <i class="bi bi-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 4: Visuals -->
+            <div class="wizard-panel" id="step-4" style="display: none;">
+                <h2 class="mb-4"><i class="bi bi-image me-2"></i>Visual Settings</h2>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Image Style</label>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="image-style-option card active" data-image-style="professional">
+                                <div class="card-body text-center py-4">
+                                    <i class="bi bi-image display-4 text-primary mb-2"></i>
+                                    <h6>Professional</h6>
+                                    <small class="text-muted">Stock photo style</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="image-style-option card" data-image-style="ai_generated">
+                                <div class="card-body text-center py-4">
+                                    <i class="bi bi-stars display-4 text-purple mb-2"></i>
+                                    <h6>AI Generated</h6>
+                                    <small class="text-muted">Artistic AI images</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="image-style-option card" data-image-style="infographic">
+                                <div class="card-body text-center py-4">
+                                    <i class="bi bi-bar-chart display-4 text-success mb-2"></i>
+                                    <h6>Infographics</h6>
+                                    <small class="text-muted">Diagrams & charts</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="image-style-option card" data-image-style="mixed">
+                                <div class="card-body text-center py-4">
+                                    <i class="bi bi-grid-3x3-gap display-4 text-warning mb-2"></i>
+                                    <h6>Mixed</h6>
+                                    <small class="text-muted">AI chooses best</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Image Frequency</label>
+                    <select class="form-select" id="image-frequency">
+                        <option value="30">Every 30 seconds (most dynamic)</option>
+                        <option value="60" selected>Every 1 minute (balanced)</option>
+                        <option value="120">Every 2 minutes (minimal)</option>
+                        <option value="smart">Smart (AI decides)</option>
+                    </select>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button class="btn btn-outline-secondary" onclick="goToStep(3)">
+                        <i class="bi bi-arrow-left me-2"></i>Back
+                    </button>
+                    <button class="btn btn-primary btn-lg" onclick="goToStep(5)">
+                        Review & Generate <i class="bi bi-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 5: Review & Generate -->
+            <div class="wizard-panel" id="step-5" style="display: none;">
+                <h2 class="mb-4"><i class="bi bi-check-circle me-2"></i>Review & Generate</h2>
+
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless mb-0">
+                            <tr>
+                                <td class="text-muted" width="150">Title:</td>
+                                <td><strong id="summary-title"></strong></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Modules:</td>
+                                <td id="summary-modules"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Duration:</td>
+                                <td id="summary-duration"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Voice:</td>
+                                <td id="summary-voice"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Style:</td>
+                                <td id="summary-style"></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Visuals:</td>
+                                <td id="summary-visuals"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-info-circle me-3 display-6"></i>
+                        <div>
+                            <strong>Estimated Processing Time:</strong> <span id="estimated-time">10-15 minutes</span><br>
+                            <small class="text-muted">You can close this page - we'll keep generating in the background.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button class="btn btn-outline-secondary" onclick="goToStep(4)">
+                        <i class="bi bi-arrow-left me-2"></i>Back
+                    </button>
+                    <button class="btn btn-success btn-lg" id="btn-generate" onclick="startGeneration()">
+                        <i class="bi bi-play-fill me-2"></i>Generate Video
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/create.js"></script>
+{% endblock %}
